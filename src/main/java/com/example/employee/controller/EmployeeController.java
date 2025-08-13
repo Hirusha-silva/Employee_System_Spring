@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/employee")
 public class EmployeeController {
@@ -77,5 +79,47 @@ public class EmployeeController {
             return new ResponseEntity(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/allEmployees")
+    public ResponseEntity getAllEmployees() {
+        try {
+            List<EmployeeDto> employeeDtoList = employeeService.getAllEmployees();
+
+            responseDto.setCode(VarList.RSP_SUCCESS);
+            responseDto.setMessage("Success");
+            responseDto.setContent(employeeDtoList);
+            return new ResponseEntity(responseDto, HttpStatus.ACCEPTED);
+
+        } catch (Exception e) {
+            responseDto.setCode(VarList.RSP_ERROR);
+            responseDto.setMessage(e.getMessage() );
+            responseDto.setContent(null);
+            return new ResponseEntity(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/search/{eId}")
+    public ResponseEntity searchEmployee(@PathVariable int eId) {
+        try {
+            EmployeeDto employeeDto = employeeService.searchEmployee(eId);
+            if (employeeDto != null) {
+                responseDto.setCode(VarList.RSP_SUCCESS);
+                responseDto.setMessage("Success");
+                responseDto.setContent(employeeDto);
+                return new ResponseEntity(responseDto, HttpStatus.ACCEPTED);
+            }else {
+                responseDto.setCode(VarList.RSP_NO_DATA_FOUND);
+                responseDto.setMessage("No data found");
+                responseDto.setContent(null);
+                return new ResponseEntity(responseDto, HttpStatus.BAD_REQUEST);
+            }
+        }catch (Exception e) {
+            responseDto.setCode(VarList.RSP_ERROR);
+            responseDto.setMessage(e.getMessage() );
+            responseDto.setContent(e);
+            return new ResponseEntity(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 }
